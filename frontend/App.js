@@ -1,12 +1,22 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { ApiProvider } from './context/ApiContext';
+import RegisterScreen from './components/RegisterScreen';
+
+const Drawer = createDrawerNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ApiProvider>
+    <NavigationContainer>
+      <Drawer.Navigator>
+      <Drawer.Screen name="RegisterScreen" component={RegisterScreen} options={{ drawerLabel: "Création de compte" }}/>
+
+      </Drawer.Navigator>
+    </NavigationContainer>
+    </ApiProvider>
   );
 }
 
