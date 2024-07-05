@@ -5,13 +5,26 @@ import json
 import mysql.connector
 import random
 import string
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+db_user = os.getenv('DB_USERNAME')
+db_password = os.getenv('DB_PASSWORD')
+db_host = os.getenv('DB_HOST')
+db_port = os.getenv('DB_PORT')
+db_name = os.getenv('DB_NAME')
+
+
 
 # Configuration de la base de données
 db_config = {
-    'user': 'root',
-    'password': '',
-    'host': 'localhost',
-    'database': 'banking_system'
+'user': db_user,
+    'password': db_password,
+    'host': db_host,
+    'database': db_name
 }
 
 # Fonction pour générer un IBAN
@@ -162,7 +175,3 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, DELETE, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return response
-
-if __name__ == '__main__':
-    from werkzeug.serving import run_simple
-    run_simple('localhost', 7000, application)
