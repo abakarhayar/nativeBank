@@ -22,8 +22,6 @@ export default function LoginScreen() {
 
       if (response.status === 200) {
         const data = await response.json();
-        // Ici vous pouvez naviguer vers l'écran suivant ou effectuer d'autres actions
-        // Par exemple, stocker les informations de l'utilisateur dans le state global ou local
         Alert.alert('Login successful!');
       } else {
         const errorData = await response.json();

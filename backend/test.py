@@ -5,7 +5,6 @@ import json
 import mysql.connector
 import random
 import string
-from decimal import Decimal
 
 # Configuration de la base de données
 db_config = {
@@ -18,13 +17,6 @@ db_config = {
 # Fonction pour générer un IBAN
 def generate_iban():
     return 'FR' + ''.join(random.choices(string.digits, k=30))
-
-# Custom JSON Encoder to handle Decimal type
-class CustomJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Decimal):
-            return float(obj)
-        return super(CustomJSONEncoder, self).default(obj)
 
 # Fonction pour enregistrer un nouvel utilisateur
 def register_user(post_data):
@@ -115,23 +107,23 @@ def handle_test_route(request):
 def handle_register_user(request):
     post_data = request.get_data(as_text=True)
     status, response = register_user(post_data)
-    return Response(json.dumps(response, cls=CustomJSONEncoder), status=status, mimetype='application/json')
+    return Response(json.dumps(response), status=status, mimetype='application/json')
 
 def handle_login_user(request):
     post_data = request.get_data(as_text=True)
     status, response = login_user(post_data)
-    return Response(json.dumps(response, cls=CustomJSONEncoder), status=status, mimetype='application/json')
+    return Response(json.dumps(response), status=status, mimetype='application/json')
 
 def handle_make_transfer(request):
     post_data = request.get_data(as_text=True)
     status, response = make_transfer(post_data)
-    return Response(json.dumps(response, cls=CustomJSONEncoder), status=status, mimetype='application/json')
+    return Response(json.dumps(response), status=status, mimetype='application/json')
 
 def handle_order_checkbook(request):
     post_data = request.get_data(as_text=True)
     user_data = json.loads(post_data)
     status, response = order_checkbook(user_data['iban'])
-    return Response(json.dumps(response, cls=CustomJSONEncoder), status=status, mimetype='application/json')
+    return Response(json.dumps(response), status=status, mimetype='application/json')
 
 # URL Mapping
 url_map = Map([
