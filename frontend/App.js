@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { ApiProvider } from './context/ApiContext';
 import RegisterScreen from './components/RegisterScreen';
+import AddTransfer from './components/AddTransfer';
 
 const Drawer = createDrawerNavigator();
 
@@ -13,6 +14,7 @@ export default function App() {
     <NavigationContainer>
       <Drawer.Navigator>
       <Drawer.Screen name="RegisterScreen" component={RegisterScreen} options={{ drawerLabel: "Création de compte" }}/>
+      <Drawer.Screen name="AddTransfer" component={AddTransfer} options={{ drawerLabel: "Effectuer un transfert" }}/>
 
       </Drawer.Navigator>
     </NavigationContainer>
