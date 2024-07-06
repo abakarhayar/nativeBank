@@ -8,7 +8,7 @@ export default function LoginScreen() {
   const handleSubmit = async () => {
     const user = {
       email: email,
-      password: password
+      password: password,
     };
 
     try {
@@ -22,9 +22,11 @@ export default function LoginScreen() {
 
       if (response.status === 200) {
         const data = await response.json();
-        Alert.alert('Login successful!');
+        console.log('Login successful!', data);
+        Alert.alert('Success', 'Login successful!');
       } else {
         const errorData = await response.json();
+        console.log('Login failed', errorData.error);
         Alert.alert('Login failed', errorData.error);
       }
     } catch (error) {

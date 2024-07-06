@@ -37,10 +37,9 @@ def register_user(post_data):
         return 500, {'error': str(err)}
 
 # Fonction pour se connecter
-# Fonction pour se connecter
 def login_user(post_data):
+    login_data = json.loads(post_data)
     try:
-        login_data = json.loads(post_data)
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         cursor.execute('SELECT * FROM users WHERE email = %s AND password = %s', (login_data['email'], login_data['password']))
@@ -52,11 +51,8 @@ def login_user(post_data):
             return 200, user
         else:
             return 404, {'error': 'Invalid email or password'}
-    except json.decoder.JSONDecodeError:
-        return 400, {'error': 'Invalid JSON format'}
     except mysql.connector.Error as err:
         return 500, {'error': str(err)}
-
 
 # Fonction pour effectuer un virement
 def make_transfer(post_data):
@@ -131,19 +127,34 @@ def handle_order_checkbook(request):
 
 # URL Mapping
 url_map = Map([
-    Rule('/api/users/register', endpoint='register_user', methods=['POST', 'OPTIONS']),
-    Rule('/api/users/login', endpoint='login_user', methods=['POST', 'OPTIONS']),
-    Rule('/api/transfer', endpoint='make_transfer', methods=['POST', 'OPTIONS']),
-    Rule('/api/checkbook', endpoint='order_checkbook', methods=['POST', 'OPTIONS']),
-    Rule('/api/test', endpoint='test_route', methods=['GET', 'OPTIONS']),
-    Rule('/api/books', endpoint='handle_options', methods=['OPTIONS']),  # Nouvelle règle pour OPTIONS
-    Rule('/api/books/<int:book_id>', endpoint='handle_options', methods=['OPTIONS'])  # Pour les requêtes OPTIONS sur un livre spécifique
+    Rule('/api/users/register', endpoint='register_user', methods=['POST']),
+    Rule('/api/users/login', endpoint='login_user', methods=['POST']),
+    Rule('/api/transfer', endpoint='make_transfer', methods=['POST']),
+    Rule('/api/checkbook', endpoint='order_checkbook', methods=['POST']),
+    Rule('/api/test', endpoint='test_route', methods=['GET'])  # Nouvelle route de test
 ])
 
-def handle_options(request):
-    response = Response(status=204)  # No Content pour les OPTIONS
-    add_cors_headers(response)
-    return response
+def application(environ, start_response):
+    request = Request(environ)
+    urls = url_map.bind_to_environ(environ)
+    try:
+        endpoint, args = urls.match()
+        if endpoint == 'register_user':
+            response = handle_register_user(request)
+        elif endpoint == 'login_user':
+            response = handle_login_user(request)
+        elif endpoint == 'make_transfer':
+            response = handle_make_transfer(request)
+        elif endpoint == 'order_checkbook':
+            response = handle_order_checkbook(request)
+        elif endpoint == 'test_route':  # Nouvelle route de test
+            response = handle_test_route(request)
+        else:
+            response = Response('Not Found', status=404)
+    except HTTPException as e:
+        response = e
+    response = add_cors_headers(response)  # Ajouter les en-têtes CORS
+    return response(environ, start_response)
 
 # Gestion des en-têtes CORS
 def add_cors_headers(response):
@@ -151,39 +162,6 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, DELETE, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return response
-
-def application(environ, start_response):
-    request = Request(environ)
-    urls = url_map.bind_to_environ(environ)
-    try:
-        endpoint, args = urls.match()
-        if endpoint == 'register_user' and request.method == 'POST':
-            response = handle_register_user(request)
-        elif endpoint == 'register_user' and request.method == 'OPTIONS':
-            response = handle_options(request)
-        elif endpoint == 'login_user' and request.method == 'POST':
-            response = handle_login_user(request)
-        elif endpoint == 'login_user' and request.method == 'OPTIONS':
-            response = handle_options(request)
-        elif endpoint == 'make_transfer' and request.method == 'POST':
-            response = handle_make_transfer(request)
-        elif endpoint == 'make_transfer' and request.method == 'OPTIONS':
-            response = handle_options(request)
-        elif endpoint == 'order_checkbook' and request.method == 'POST':
-            response = handle_order_checkbook(request)
-        elif endpoint == 'order_checkbook' and request.method == 'OPTIONS':
-            response = handle_options(request)
-        elif endpoint == 'test_route' and request.method == 'GET':
-            response = handle_test_route(request)
-        elif endpoint == 'test_route' and request.method == 'OPTIONS':
-            response = handle_options(request)
-        elif endpoint == 'handle_options' and request.method == 'OPTIONS':
-            response = handle_options(request)
-        else:
-            response = Response('Not Found', status=404)
-    except HTTPException as e:
-        response = e
-    return response(environ, start_response)
 
 if __name__ == '__main__':
     from werkzeug.serving import run_simple

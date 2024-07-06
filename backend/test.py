@@ -1,6 +1,6 @@
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
-from werkzeug.exceptions import HTTPException, NotFound
+from werkzeug.exceptions import HTTPException, NotFound, MethodNotAllowed
 import json
 import mysql.connector
 import random
@@ -83,7 +83,7 @@ def order_checkbook(user_iban):
         cursor = conn.cursor()
         cursor.execute('SELECT solde FROM users WHERE iban = %s', (user_iban,))
         solde = cursor.fetchone()[0]
-        if solde >= 15.00:
+        if (solde >= 15.00):
             cursor.execute('UPDATE users SET solde = solde - 15.00 WHERE iban = %s', (user_iban,))
             conn.commit()
             cursor.close()
@@ -102,6 +102,12 @@ def handle_test_route(request):
         'data': [1, 2, 3, 4, 5]
     }
     return Response(json.dumps(static_data), status=200, mimetype='application/json')
+
+# Fonction pour gérer les requêtes OPTIONS
+def handle_options_request(request):
+    response = Response(status=204)
+    response = add_cors_headers(response)
+    return response
 
 # Routes POST
 def handle_register_user(request):
@@ -127,11 +133,11 @@ def handle_order_checkbook(request):
 
 # URL Mapping
 url_map = Map([
-    Rule('/api/users/register', endpoint='register_user', methods=['POST']),
-    Rule('/api/users/login', endpoint='login_user', methods=['POST']),
-    Rule('/api/transfer', endpoint='make_transfer', methods=['POST']),
-    Rule('/api/checkbook', endpoint='order_checkbook', methods=['POST']),
-    Rule('/api/test', endpoint='test_route', methods=['GET'])  # Nouvelle route de test
+    Rule('/api/users/register', endpoint='register_user', methods=['POST', 'OPTIONS']),
+    Rule('/api/users/login', endpoint='login_user', methods=['POST', 'OPTIONS']),
+    Rule('/api/transfer', endpoint='make_transfer', methods=['POST', 'OPTIONS']),
+    Rule('/api/checkbook', endpoint='order_checkbook', methods=['POST', 'OPTIONS']),
+    Rule('/api/test', endpoint='test_route', methods=['GET', 'OPTIONS'])
 ])
 
 def application(environ, start_response):
@@ -139,7 +145,9 @@ def application(environ, start_response):
     urls = url_map.bind_to_environ(environ)
     try:
         endpoint, args = urls.match()
-        if endpoint == 'register_user':
+        if request.method == 'OPTIONS':
+            response = handle_options_request(request)
+        elif endpoint == 'register_user':
             response = handle_register_user(request)
         elif endpoint == 'login_user':
             response = handle_login_user(request)
@@ -147,14 +155,18 @@ def application(environ, start_response):
             response = handle_make_transfer(request)
         elif endpoint == 'order_checkbook':
             response = handle_order_checkbook(request)
-        elif endpoint == 'test_route':  # Nouvelle route de test
+        elif endpoint == 'test_route':
             response = handle_test_route(request)
         else:
             response = Response('Not Found', status=404)
+    except MethodNotAllowed:
+        response = Response(status=405)
     except HTTPException as e:
         response = e
-    response = add_cors_headers(response)  # Ajouter les en-têtes CORS
+    if hasattr(response, 'headers'):
+        response = add_cors_headers(response)
     return response(environ, start_response)
+
 
 # Gestion des en-têtes CORS
 def add_cors_headers(response):
