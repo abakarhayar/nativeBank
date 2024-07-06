@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useApi } from "../context/ApiContext";
 import { useUser } from "../context/UserContext";
+import Logo from "../components/Logo";
 
 export default function LoginScreen({ navigation }) {
   const apiUrl = useApi();
@@ -32,7 +33,6 @@ export default function LoginScreen({ navigation }) {
 
       if (response.status === 200) {
         const data = await response.json();
-        // console.log('Login successful!', data);
         setUser(data);
         Alert.alert("Success", "Login successful!");
         navigation.navigate("AddTransfer", {
@@ -60,6 +60,8 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <Logo />
+
       <Text style={styles.title}>Connexion</Text>
 
       <TextInput
@@ -69,6 +71,7 @@ export default function LoginScreen({ navigation }) {
         placeholder="Adresse email"
         keyboardType="email-address"
         autoCapitalize="none"
+        placeholderTextColor="#133CB3"
       />
 
       <TextInput
@@ -77,11 +80,13 @@ export default function LoginScreen({ navigation }) {
         onChangeText={setPassword}
         placeholder="Mot de passe"
         secureTextEntry={true}
+        placeholderTextColor="#133CB3"
       />
 
-      <Button title="S'inscrire" onPress={handleRegister} />
-
-      <Button title="Se connecter" onPress={handleSubmit} />
+      <View style={styles.buttonContainer}>
+        <Button title="S'inscrire" onPress={handleRegister} color="#6CA5D3" />
+        <Button title="Se connecter" onPress={handleSubmit} color="#FE09C4" />
+      </View>
 
       {errorMessage !== "" && (
         <View style={styles.errorContainer}>
@@ -98,24 +103,35 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
+    backgroundColor: "#FFFFFF",  
   },
   title: {
     fontSize: 24,
-    marginBottom: 20,
+    marginBottom: 16,
+    textAlign: "center",
+    textTransform: "uppercase",
+    fontWeight: "bold",
+    color: "#056177",
   },
   input: {
     height: 40,
     width: "100%",
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#056177",
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
+    color: "#056177",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
   errorContainer: {
     width: "100%",
     padding: 10,
-    backgroundColor: "red",
+    backgroundColor: "#FE09C4",
     position: "absolute",
     top: 0,
     left: 0,

@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-  Picker,
-  Alert,
-} from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, Picker, Alert } from "react-native";
 import { useApi } from "../context/ApiContext";
 import { useUser } from "../context/UserContext";
+import Logo from "./Logo";
 
 export default function AddTransfer({ route, navigation }) {
   const { successMessage } = route.params || {};
@@ -110,9 +103,7 @@ export default function AddTransfer({ route, navigation }) {
       });
       if (response.ok) {
         const data = await response.json();
-        setAlertMessage(
-          `Virement de ${amount} euros effectué avec succès à ${selectedUser.nom} ${selectedUser.prenom}`
-        );
+        setAlertMessage(`Virement de ${amount} euros effectué avec succès à ${selectedUser.nom} ${selectedUser.prenom}`);
         Alert.alert("Succès", "Virement effectué avec succès");
       } else {
         const errorData = await response.json();
@@ -131,67 +122,41 @@ export default function AddTransfer({ route, navigation }) {
           <Text style={styles.alertMessage}>{alertMessage}</Text>
         </View>
       )}
+      <Logo />
       <Text style={styles.title}>Effectuer un virement</Text>
 
-      <Text style={styles.label}>Sélectionner un destinataire</Text>
       <Picker
         selectedValue={ibanInput}
         style={styles.picker}
-        onValueChange={(itemValue) => handlePickerChange(itemValue)}
+        onValueChange={handlePickerChange}
       >
-        <Picker.Item label="Sélectionner un utilisateur" value="" />
+        <Picker.Item label="-- Sélectionner un destinataire --" value="" />
         {users.map((user) => (
-          <Picker.Item
-            key={user.iban}
-            label={`${user.nom} ${user.prenom}`}
-            value={user.iban}
-          />
+          <Picker.Item key={user.iban} label={`${user.nom} ${user.prenom}`} value={user.iban} />
         ))}
       </Picker>
 
-      <Text style={styles.label}>Ou saisir l'IBAN du destinataire</Text>
-      <TextInput
-        style={styles.input}
-        value={ibanInput}
-        onChangeText={(text) => handleUserSelection(text)}
-        placeholder="Saisissez l'IBAN du destinataire"
-        keyboardType="default"
-      />
-
-      <Text style={styles.label}>Montant du virement</Text>
       <TextInput
         style={styles.input}
         value={amount}
         onChangeText={setAmount}
         placeholder="Montant"
         keyboardType="numeric"
+        placeholderTextColor="#133CB3"
       />
 
-      <Button title="Effectuer le virement" onPress={handleSubmit} />
-      {alertMessage !== "" && (
-        <Text style={styles.successMessage}>{alertMessage}</Text>
-      )}
+      <Button title="Effectuer le virement" onPress={handleSubmit} color="#FE09C4" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     padding: 20,
-  },
-  input: {
-    height: 40,
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-  },
-  picker: {
-    height: 40,
-    width: "100%",
-    marginBottom: 10,
+    backgroundColor: "#FFFFFF", 
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
     fontSize: 24,
@@ -199,20 +164,36 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textTransform: "uppercase",
     fontWeight: "bold",
+    color: "#056177",
   },
   label: {
-    marginBottom: 8,
+    fontSize: 18,
+    marginBottom: 10,
+    color: "#056177",
   },
-  successMessage: {
-    marginTop: 10,
-    color: "green",
-    fontSize: 16,
-    textAlign: "center",
+  input: {
+    height: 40,
+    borderColor: "#056177",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    color: "#056177",
+    width: "100%",
+  },
+  picker: {
+    height: 40,
+    borderColor: "#056177",
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 20,
+    color: "#056177",
+    width: "100%",
   },
   alertContainer: {
     width: "100%",
     padding: 10,
-    backgroundColor: "green",
+    backgroundColor: "#FE09C4",
     position: "absolute",
     top: 0,
     left: 0,
