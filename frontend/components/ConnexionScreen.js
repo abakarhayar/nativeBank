@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { useApi } from '../context/ApiContext'; // Importer useApi depuis votre contexte API
 
 export default function LoginScreen() {
+  const apiUrl = useApi(); // Utiliser useApi pour obtenir l'URL de l'API
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async () => {
     const user = {
       email: email,
-      password: password
+      password: password,
     };
 
     try {
-      const response = await fetch('http://localhost:7000/api/users/login', {
+      const response = await fetch(`${apiUrl}/users/login`, { // Utiliser apiUrl obtenu via useApi
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -22,11 +25,12 @@ export default function LoginScreen() {
 
       if (response.status === 200) {
         const data = await response.json();
-        // Ici vous pouvez naviguer vers l'écran suivant ou effectuer d'autres actions
-        // Par exemple, stocker les informations de l'utilisateur dans le state global ou local
-        Alert.alert('Login successful!');
+        console.log('Login successful!', data);
+        Alert.alert('Success', 'Login successful!');
+        // Redirection vers une autre page ou traitement supplémentaire si nécessaire
       } else {
         const errorData = await response.json();
+        console.log('Login failed', errorData.error);
         Alert.alert('Login failed', errorData.error);
       }
     } catch (error) {

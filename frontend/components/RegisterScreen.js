@@ -1,16 +1,15 @@
-import { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { useApi } from '../context/ApiContext';
-
-
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { useApi } from '../context/ApiContext'; // Importer useApi depuis votre contexte API
 
 export default function RegisterScreen({ navigation }) {
+    const apiUrl = useApi(); // Utiliser useApi pour obtenir l'URL de l'API
+
     const [nom, setNom] = useState("");
     const [prenom, setPrenom] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [solde, setSolde] = useState("");
-    const apiUrl = useApi();
 
     const clearForm = () => {
         setNom("");
@@ -41,24 +40,27 @@ export default function RegisterScreen({ navigation }) {
             });
             if (response.ok) {
                 clearForm();
-                // navigation.navigate('login');
+                Alert.alert('Succès', 'Compte créé avec succès');
+                // Naviguer vers une autre page si nécessaire
             } else {
                 const errorData = await response.json();
                 console.error('Error adding user:', errorData);
-                console.log(user);
+                Alert.alert('Erreur', 'Erreur lors de la création du compte');
             }
         } catch (error) {
             console.error('Error adding user:', error);
+            Alert.alert('Erreur', 'Une erreur est survenue lors de la création du compte');
         }
     };
-    const handleCancel = () => {
-    //   navigation.navigate('login'); 
-  };
 
+    const handleCancel = () => {
+        // Naviguer vers l'écran de login ou autre écran
+        navigation.navigate('Login'); // Exemple de navigation vers l'écran de login
+    };
 
     return (
-        <View>
-            <Text style={styles.title}>Creer un compte</Text>
+        <View style={styles.container}>
+            <Text style={styles.title}>Créer un compte</Text>
 
             <Text>Nom</Text>
             <TextInput
@@ -68,16 +70,15 @@ export default function RegisterScreen({ navigation }) {
                 placeholder="Nom"
             />
 
-            <Text>Prenom </Text>
+            <Text>Prénom</Text>
             <TextInput
                 style={styles.textInput}
                 value={prenom}
                 onChangeText={setPrenom}
-                multiline={true}
-                placeholder="Prenom"
+                placeholder="Prénom"
             />
 
-            <Text>email</Text>
+            <Text>Email</Text>
             <TextInput
                 style={styles.textInput}
                 value={email}
@@ -86,12 +87,12 @@ export default function RegisterScreen({ navigation }) {
                 keyboardType="email-address"
             />
 
-            <Text>Password</Text>
+            <Text>Mot de passe</Text>
             <TextInput
                 style={styles.textInput}
                 value={password}
                 onChangeText={setPassword}
-                placeholder="password"
+                placeholder="Mot de passe"
                 secureTextEntry={true}
             />
 
@@ -100,11 +101,10 @@ export default function RegisterScreen({ navigation }) {
                 style={styles.textInput}
                 value={solde}
                 onChangeText={setSolde}
-                placeholder="solde"
+                placeholder="Solde"
                 keyboardType="numeric"
             />
 
-            
             <Button title="Ouverture de compte" onPress={handleSubmit} />
             <Button title="Annuler" onPress={handleCancel} color="red" />
         </View>
@@ -112,6 +112,12 @@ export default function RegisterScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
     textInput: {
         height: 40,
         width: '80%',

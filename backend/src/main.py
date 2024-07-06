@@ -1,30 +1,17 @@
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
-from werkzeug.exceptions import HTTPException, NotFound
+from werkzeug.exceptions import HTTPException, NotFound, MethodNotAllowed
 import json
 import mysql.connector
 import random
 import string
-import os
-from dotenv import load_dotenv
-
-
-load_dotenv()
-
-db_user = os.getenv('DB_USERNAME')
-db_password = os.getenv('DB_PASSWORD')
-db_host = os.getenv('DB_HOST')
-db_port = os.getenv('DB_PORT')
-db_name = os.getenv('DB_NAME')
-
-
 
 # Configuration de la base de données
 db_config = {
-'user': db_user,
-    'password': db_password,
-    'host': db_host,
-    'database': db_name
+    'user': 'root',
+    'password': '',
+    'host': 'localhost',
+    'database': 'banking_system'
 }
 
 # Fonction pour générer un IBAN
@@ -67,6 +54,19 @@ def login_user(post_data):
     except mysql.connector.Error as err:
         return 500, {'error': str(err)}
 
+# Fonction pour récupérer la liste des utilisateurs
+def get_users():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute('SELECT nom, prenom, email, iban FROM users')
+        users = cursor.fetchall() 
+        cursor.close()
+        conn.close()
+        return 200, users
+    except mysql.connector.Error as err:
+        return 500, {'error': str(err)}
+
 # Fonction pour effectuer un virement
 def make_transfer(post_data):
     transfer_data = json.loads(post_data)
@@ -91,6 +91,9 @@ def make_transfer(post_data):
 
 # Fonction pour commander un chéquier
 def order_checkbook(user_iban):
+    if not user_iban:
+        return 400, {'error': 'Missing iban'}
+
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
@@ -107,6 +110,7 @@ def order_checkbook(user_iban):
     except mysql.connector.Error as err:
         return 500, {'error': str(err)}
 
+
 # Fonction de gestion pour la route de test
 def handle_test_route(request):
     static_data = {
@@ -115,6 +119,17 @@ def handle_test_route(request):
         'data': [1, 2, 3, 4, 5]
     }
     return Response(json.dumps(static_data), status=200, mimetype='application/json')
+
+# Fonction pour gérer les requêtes OPTIONS
+def handle_options_request(request):
+    response = Response(status=204)
+    response = add_cors_headers(response)
+    return response
+
+# Fonction de gestion pour récupérer la liste des utilisateurs
+def handle_get_users(request):
+    status, response = get_users()
+    return Response(json.dumps(response), status=status, mimetype='application/json')
 
 # Routes POST
 def handle_register_user(request):
@@ -135,38 +150,49 @@ def handle_make_transfer(request):
 def handle_order_checkbook(request):
     post_data = request.get_data(as_text=True)
     user_data = json.loads(post_data)
+    if 'iban' not in user_data:
+        return Response(json.dumps({'error': 'Missing iban'}), status=400, mimetype='application/json')
     status, response = order_checkbook(user_data['iban'])
     return Response(json.dumps(response), status=status, mimetype='application/json')
 
 # URL Mapping
 url_map = Map([
-    Rule('/api/users/register', endpoint='register_user', methods=['POST']),
-    Rule('/api/users/login', endpoint='login_user', methods=['POST']),
-    Rule('/api/transfer', endpoint='make_transfer', methods=['POST']),
-    Rule('/api/checkbook', endpoint='order_checkbook', methods=['POST']),
-    Rule('/api/test', endpoint='test_route', methods=['GET'])  # Nouvelle route de test
+    Rule('/api/users/register', endpoint='register_user', methods=['POST', 'OPTIONS']),
+    Rule('/api/users/login', endpoint='login_user', methods=['POST', 'OPTIONS']),
+    Rule('/api/users', endpoint='get_users', methods=['GET', 'OPTIONS']),
+    Rule('/api/transfer', endpoint='make_transfer', methods=['POST', 'OPTIONS']),
+    Rule('/api/checkbook', endpoint='order_checkbook', methods=['POST', 'OPTIONS']),
+    Rule('/api/test', endpoint='test_route', methods=['GET', 'OPTIONS'])
 ])
 
+# Fonction principale d'application
 def application(environ, start_response):
     request = Request(environ)
     urls = url_map.bind_to_environ(environ)
     try:
         endpoint, args = urls.match()
-        if endpoint == 'register_user':
+        if request.method == 'OPTIONS':
+            response = handle_options_request(request)
+        elif endpoint == 'register_user':
             response = handle_register_user(request)
         elif endpoint == 'login_user':
             response = handle_login_user(request)
+        elif endpoint == 'get_users':
+            response = handle_get_users(request)
         elif endpoint == 'make_transfer':
             response = handle_make_transfer(request)
         elif endpoint == 'order_checkbook':
             response = handle_order_checkbook(request)
-        elif endpoint == 'test_route':  # Nouvelle route de test
+        elif endpoint == 'test_route':
             response = handle_test_route(request)
         else:
             response = Response('Not Found', status=404)
+    except MethodNotAllowed:
+        response = Response(status=405)
     except HTTPException as e:
         response = e
-    response = add_cors_headers(response)  # Ajouter les en-têtes CORS
+    if hasattr(response, 'headers'):
+        response = add_cors_headers(response)
     return response(environ, start_response)
 
 # Gestion des en-têtes CORS
@@ -175,3 +201,7 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, DELETE, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return response
+
+if __name__ == '__main__':
+    from werkzeug.serving import run_simple
+    run_simple('localhost', 7000, application)
