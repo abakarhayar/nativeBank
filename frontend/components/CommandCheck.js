@@ -1,13 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, Picker } from 'react-native';
-import { useApi } from '../context/ApiContext'; // Assurez-vous d'importer correctement votre contexte API
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  Picker,
+} from "react-native";
+import { useApi } from "../context/ApiContext";
 
 export default function CommandCheck() {
   const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null); // Utilisation de null pour initialiser selectedUser
-  const [ibanInput, setIbanInput] = useState(''); // State pour la saisie de l'IBAN
-  const [successMessage, setSuccessMessage] = useState(''); // State pour le message de succès
-  const apiUrl = useApi(); // Assurez-vous d'utiliser correctement votre contexte API
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [ibanInput, setIbanInput] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const apiUrl = useApi();
 
   useEffect(() => {
     fetchUsers();
@@ -20,61 +28,66 @@ export default function CommandCheck() {
         const data = await response.json();
         setUsers(data);
       } else {
-        console.error('Failed to fetch users');
+        console.error("Failed to fetch users");
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
     }
   };
 
   const handleUserSelection = (iban) => {
-    const selected = users.find(user => user.iban === iban);
+    const selected = users.find((user) => user.iban === iban);
     if (selected) {
       setSelectedUser(selected);
       setIbanInput(iban);
     } else {
       setSelectedUser(null);
-      setIbanInput('');
+      setIbanInput("");
     }
   };
 
   const handlePickerChange = (itemValue) => {
-    const selected = users.find(user => user.iban === itemValue);
+    const selected = users.find((user) => user.iban === itemValue);
     if (selected) {
       setSelectedUser(selected);
       setIbanInput(itemValue);
     } else {
       setSelectedUser(null);
-      setIbanInput('');
+      setIbanInput("");
     }
   };
 
   const handleOrderCheckbook = async () => {
     if (!selectedUser) {
-      Alert.alert('Erreur', 'Veuillez sélectionner un utilisateur');
+      Alert.alert("Erreur", "Veuillez sélectionner un utilisateur");
       return;
     }
 
     try {
       const response = await fetch(`${apiUrl}/checkbook`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ iban: selectedUser.iban }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setSuccessMessage(`Votre commande de chéquier a été effectuée et vous êtes réduit de 15 euros. Merci`);
-        Alert.alert('Succès', data.message);
+        setSuccessMessage(
+          `Votre commande de chéquier a été effectuée et vous êtes réduit de 15 euros. Merci`
+        );
+        Alert.alert("Succès", data.message);
       } else {
         const errorData = await response.json();
-        Alert.alert('Échec', errorData.error);
+        Alert.alert("Échec", errorData.error);
       }
     } catch (error) {
-      console.error('Error ordering checkbook:', error);
-      Alert.alert('Erreur', 'Une erreur est survenue lors de la commande du chéquier.');
+      console.error("Error ordering checkbook:", error);
+      Alert.alert(
+        "Erreur",
+        "Une erreur est survenue lors de la commande du chéquier."
+      );
     }
   };
 
@@ -107,8 +120,7 @@ export default function CommandCheck() {
 
       <Button title="Commander" onPress={handleOrderCheckbook} />
 
-      {/* Affichage du message de succès */}
-      {successMessage !== '' && (
+      {successMessage !== "" && (
         <Text style={styles.successMessage}>{successMessage}</Text>
       )}
     </View>
@@ -121,30 +133,30 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
   },
   picker: {
     height: 40,
-    width: '100%',
+    width: "100%",
     marginBottom: 10,
   },
   title: {
     fontSize: 24,
     marginBottom: 16,
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    fontWeight: 'bold',
+    textAlign: "center",
+    textTransform: "uppercase",
+    fontWeight: "bold",
   },
   label: {
     marginBottom: 8,
   },
   successMessage: {
     marginTop: 10,
-    color: 'green',
+    color: "green",
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });
