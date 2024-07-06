@@ -2,19 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Picker, Alert } from 'react-native';
 import { useApi } from '../context/ApiContext';
 
-export default function AddTransfer({ navigation }) {
+export default function AddTransfer({ route, navigation }) {
+    const { successMessage } = route.params || {}; 
     const [users, setUsers] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null); // Utilisation de null pour initialiser selectedUser
-    const [selectedSender, setSelectedSender] = useState(null); // Utilisation de null pour initialiser selectedSender
-    const [ibanInput, setIbanInput] = useState(''); // State pour la saisie de l'IBAN
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedSender, setSelectedSender] = useState(null);
+    const [ibanInput, setIbanInput] = useState('');
     const [amount, setAmount] = useState('');
-    const [senderIban, setSenderIban] = useState(''); // State pour l'IBAN de l'expéditeur
-    const [successMessage, setSuccessMessage] = useState(''); // State pour le message de succès
-    const apiUrl = useApi(); // Assurez-vous d'utiliser correctement votre contexte API
+    const [senderIban, setSenderIban] = useState('');
+    const [alertMessage, setAlertMessage] = useState(successMessage || ''); 
+    const apiUrl = useApi();
 
     useEffect(() => {
         fetchUsers();
     }, []);
+
+    useEffect(() => {
+        if (alertMessage) {
+            const timer = setTimeout(() => {
+                setAlertMessage('');
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [alertMessage]);
 
     const fetchUsers = async () => {
         try {
@@ -74,7 +84,7 @@ export default function AddTransfer({ navigation }) {
         }
 
         const transferData = {
-            sender_iban: senderIban,  // Utilisation de l'IBAN de l'expéditeur saisi
+            sender_iban: senderIban,
             receiver_iban: selectedUser.iban,
             amount: parseFloat(amount),
         };
@@ -90,9 +100,8 @@ export default function AddTransfer({ navigation }) {
             });
             if (response.ok) {
                 const data = await response.json();
-                setSuccessMessage(`Virement de ${amount} euros effectué avec succès à ${selectedUser.nom} ${selectedUser.prenom}`);
+                setAlertMessage(`Virement de ${amount} euros effectué avec succès à ${selectedUser.nom} ${selectedUser.prenom}`);
                 Alert.alert('Succès', 'Virement effectué avec succès');
-                // Clear form or navigate to another screen if needed
             } else {
                 const errorData = await response.json();
                 Alert.alert('Échec', errorData.error);
@@ -105,6 +114,11 @@ export default function AddTransfer({ navigation }) {
 
     return (
         <View style={styles.container}>
+            {alertMessage !== '' && (
+                <View style={styles.alertContainer}>
+                    <Text style={styles.alertMessage}>{alertMessage}</Text>
+                </View>
+            )}
             <Text style={styles.title}>Effectuer un virement</Text>
 
             <Text style={styles.label}>Sélectionner un destinataire</Text>
@@ -167,10 +181,8 @@ export default function AddTransfer({ navigation }) {
             />
 
             <Button title="Effectuer le virement" onPress={handleSubmit} />
-
-            {/* Affichage du message de succès */}
-            {successMessage !== '' && (
-                <Text style={styles.successMessage}>{successMessage}</Text>
+            {alertMessage !== '' && (
+                <Text style={styles.successMessage}>{alertMessage}</Text>
             )}
         </View>
     );
@@ -209,5 +221,20 @@ const styles = StyleSheet.create({
         color: 'green',
         fontSize: 16,
         textAlign: 'center',
+    },
+    alertContainer: {
+        width: '100%',
+        padding: 10,
+        backgroundColor: 'green',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+    },
+    alertMessage: {
+        color: 'white',
+        textAlign: 'center',
+        fontSize: 16,
     },
 });

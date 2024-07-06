@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import { useApi } from '../context/ApiContext'; // Importer useApi depuis votre contexte API
+import { useApi } from '../context/ApiContext'; 
 
 export default function RegisterScreen({ navigation }) {
-    const apiUrl = useApi(); // Utiliser useApi pour obtenir l'URL de l'API
+    const apiUrl = useApi(); 
 
     const [nom, setNom] = useState("");
     const [prenom, setPrenom] = useState("");
@@ -41,7 +41,6 @@ export default function RegisterScreen({ navigation }) {
             if (response.ok) {
                 clearForm();
                 Alert.alert('Succès', 'Compte créé avec succès');
-                // Naviguer vers une autre page si nécessaire
             } else {
                 const errorData = await response.json();
                 console.error('Error adding user:', errorData);
@@ -54,8 +53,7 @@ export default function RegisterScreen({ navigation }) {
     };
 
     const handleCancel = () => {
-        // Naviguer vers l'écran de login ou autre écran
-        navigation.navigate('Login'); // Exemple de navigation vers l'écran de login
+        navigation.navigate('login'); 
     };
 
     return (
@@ -106,7 +104,7 @@ export default function RegisterScreen({ navigation }) {
             />
 
             <Button title="Ouverture de compte" onPress={handleSubmit} />
-            <Button title="Annuler" onPress={handleCancel} color="red" />
+            <Button title="Connexion" onPress={handleCancel} color="red" />
         </View>
     );
 }
