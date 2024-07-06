@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
-import { useApi } from '../context/ApiContext'; // Importer useApi depuis votre contexte ApiContext
+import { useApi } from '../context/ApiContext';  
+import Logo from './Logo';
 
 const TestRoute = () => {
     const [responseData, setResponseData] = useState(null);
-    const apiUrl = useApi(); // Utiliser useApi pour obtenir l'URL de votre API
+    const apiUrl = useApi();  
 
     const handleTestRoute = async () => {
         try {
-            const response = await fetch(apiUrl + '/test', { // Utiliser l'URL de l'API obtenue depuis useApi
+            const response = await fetch(apiUrl + '/test', {  
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Ajoutez des headers supplémentaires si nécessaire
                 },
             });
 
@@ -29,23 +29,23 @@ const TestRoute = () => {
     };
 
     useEffect(() => {
-        // Appeler la fonction pour charger les données au montage du composant
         handleTestRoute();
     }, []);
 
     return (
         <View style={styles.container}>
+            <Logo />
             <Text style={styles.title}>Test Route</Text>
             {responseData ? (
                 <View style={styles.dataContainer}>
-                    <Text>Status: {responseData.status}</Text>
-                    <Text>Message: {responseData.message}</Text>
-                    <Text>Data: {JSON.stringify(responseData.data)}</Text>
+                    <Text style={styles.dataText}>Status: {responseData.status}</Text>
+                    <Text style={styles.dataText}>Message: {responseData.message}</Text>
+                    <Text style={styles.dataText}>Data: {JSON.stringify(responseData.data)}</Text>
                 </View>
             ) : (
-                <Text>Loading...</Text>
+                <Text style={styles.loadingText}>Loading...</Text>
             )}
-            <Button title="Reload Data" onPress={handleTestRoute} />
+            <Button title="Reload Data" onPress={handleTestRoute} color="#056177"/>
         </View>
     );
 };
@@ -56,17 +56,33 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
+        backgroundColor: '#FFFFFF',
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
+        color: '#056177',
+        textAlign: 'center',
+        textTransform: 'uppercase',
     },
     dataContainer: {
         marginTop: 20,
         borderWidth: 1,
+        borderColor: '#056177',
         padding: 10,
         width: '100%',
+        borderRadius: 5,
+        marginBottom: 20,
+    },
+    dataText: {
+        color: '#056177',
+        fontSize: 16,
+        marginBottom: 10,
+    },
+    loadingText: {
+        color: '#056177',
+        fontSize: 16,
     },
 });
 

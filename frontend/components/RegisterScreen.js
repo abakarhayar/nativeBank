@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useApi } from "../context/ApiContext";
+import Logo from "./Logo";
 
 export default function RegisterScreen({ navigation }) {
   const apiUrl = useApi();
@@ -40,6 +41,7 @@ export default function RegisterScreen({ navigation }) {
       if (response.ok) {
         clearForm();
         Alert.alert("Succès", "Compte créé avec succès");
+        navigation.navigate("login");
       } else {
         const errorData = await response.json();
         console.error("Error adding user:", errorData);
@@ -60,53 +62,56 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <Logo />
       <Text style={styles.title}>Créer un compte</Text>
 
-      <Text>Nom</Text>
       <TextInput
         style={styles.textInput}
         value={nom}
         onChangeText={setNom}
         placeholder="Nom"
+        placeholderTextColor="#133CB3"
       />
 
-      <Text>Prénom</Text>
       <TextInput
         style={styles.textInput}
         value={prenom}
         onChangeText={setPrenom}
         placeholder="Prénom"
+        placeholderTextColor="#133CB3"
       />
 
-      <Text>Email</Text>
       <TextInput
         style={styles.textInput}
         value={email}
         onChangeText={setEmail}
         placeholder="test@test.com"
         keyboardType="email-address"
+        placeholderTextColor="#133CB3"
       />
 
-      <Text>Mot de passe</Text>
       <TextInput
         style={styles.textInput}
         value={password}
         onChangeText={setPassword}
         placeholder="Mot de passe"
         secureTextEntry={true}
+        placeholderTextColor="#133CB3"
       />
 
-      <Text>Solde</Text>
       <TextInput
         style={styles.textInput}
         value={solde}
         onChangeText={setSolde}
         placeholder="Solde"
         keyboardType="numeric"
+        placeholderTextColor="#133CB3"
       />
 
-      <Button title="Ouverture de compte" onPress={handleSubmit} />
-      <Button title="Connexion" onPress={handleCancel} color="red" />
+      <View style={styles.buttonContainer}>
+        <Button title="Connexion" onPress={handleCancel} color="#6CA5D3" />
+        <Button title="Ouverture de compte" onPress={handleSubmit} color="#FE09C4" />
+      </View>
     </View>
   );
 }
@@ -117,15 +122,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
-  },
-  textInput: {
-    height: 40,
-    width: "80%",
-    borderWidth: 1,
-    borderColor: "red",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
+    
+    backgroundColor: "#FFFFFF", // White background
   },
   title: {
     fontSize: 24,
@@ -133,5 +131,27 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textTransform: "uppercase",
     fontWeight: "bold",
+    color: "#056177",
+  },
+  label: {
+    fontSize: 18,
+    marginBottom: 10,
+    color: "#056177",
+  },
+  textInput: {
+    height: 40,
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#056177",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    color: "#056177",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: 20,
   },
 });

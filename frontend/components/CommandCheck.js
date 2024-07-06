@@ -9,6 +9,7 @@ import {
   Picker,
 } from "react-native";
 import { useApi } from "../context/ApiContext";
+import Logo from "./Logo";
 
 export default function CommandCheck() {
   const [users, setUsers] = useState([]);
@@ -93,8 +94,8 @@ export default function CommandCheck() {
 
   return (
     <View style={styles.container}>
+      <Logo style={styles.logo}/>
       <Text style={styles.title}>Commander un chéquier</Text>
-      <Text style={styles.label}>Sélectionner un utilisateur</Text>
       <Picker
         selectedValue={ibanInput}
         style={styles.picker}
@@ -104,21 +105,22 @@ export default function CommandCheck() {
         {users.map((user) => (
           <Picker.Item
             key={user.iban}
-            label={`${user.nom} ${user.prenom} (${user.iban})`}
+            label={`${user.nom} ${user.prenom}`}
             value={user.iban}
           />
         ))}
       </Picker>
-      <Text style={styles.label}>Ou Saisir l'IBAN de l'utilisateur</Text>
       <TextInput
         style={styles.input}
         value={ibanInput}
+        readOnly={selectedUser !== null}
         onChangeText={(text) => handleUserSelection(text)}
         placeholder="Saisir l'IBAN de l'utilisateur"
+        placeholderTextColor="#133CB3"
         keyboardType="default"
       />
 
-      <Button title="Commander" onPress={handleOrderCheckbook} />
+      <Button title="Commander" onPress={handleOrderCheckbook} color="#FE09C4" />
 
       {successMessage !== "" && (
         <Text style={styles.successMessage}>{successMessage}</Text>
@@ -129,19 +131,30 @@ export default function CommandCheck() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
+    backgroundColor: "#FFFFFF",
   },
   input: {
     height: 40,
-    borderColor: "gray",
+    borderColor: "#056177",
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
+    color: "#056177",
+    borderRadius: 5,
+    width: "100%",
   },
   picker: {
     height: 40,
+    borderColor: "#056177",
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 20,
+    color: "#056177",
     width: "100%",
-    marginBottom: 10,
   },
   title: {
     fontSize: 24,
@@ -149,13 +162,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textTransform: "uppercase",
     fontWeight: "bold",
+    color: "#056177",
   },
   label: {
     marginBottom: 8,
+    color: "#056177",
+    fontSize: 16,
   },
   successMessage: {
     marginTop: 10,
-    color: "green",
+    color: "#056177",
     fontSize: 16,
     textAlign: "center",
   },
