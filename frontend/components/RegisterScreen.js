@@ -41,6 +41,7 @@ export default function RegisterScreen({ navigation }) {
       if (response.ok) {
         clearForm();
         Alert.alert("Succès", "Compte créé avec succès");
+        navigation.navigate("login");
       } else {
         const errorData = await response.json();
         console.error("Error adding user:", errorData);
@@ -56,7 +57,7 @@ export default function RegisterScreen({ navigation }) {
   };
 
   const handleCancel = () => {
-    navigation.navigate("LoginScreen");
+    navigation.navigate("login");
   };
 
   return (
@@ -108,8 +109,8 @@ export default function RegisterScreen({ navigation }) {
       />
 
       <View style={styles.buttonContainer}>
-        <Button title="Ouverture de compte" onPress={handleSubmit} color="#FE09C4" />
         <Button title="Connexion" onPress={handleCancel} color="#6CA5D3" />
+        <Button title="Ouverture de compte" onPress={handleSubmit} color="#FE09C4" />
       </View>
     </View>
   );
