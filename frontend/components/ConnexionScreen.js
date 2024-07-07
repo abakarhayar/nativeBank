@@ -35,7 +35,7 @@ export default function LoginScreen({ navigation }) {
         const data = await response.json();
         setUser(data);
         Alert.alert("Success", "Login successful!");
-        navigation.navigate("AddTransfer", {
+        navigation.navigate("ProfileScreen", {
           successMessage: "Connexion réussie!",
         });
       } else {
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
-    backgroundColor: "#FFFFFF",  
+    backgroundColor: "#FFFFFF",
   },
   title: {
     fontSize: 24,

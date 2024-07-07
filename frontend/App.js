@@ -9,6 +9,7 @@ import CommandCheck from './components/CommandCheck';
 import TestRoute from './components/TestRoute';
 import { ApiProvider } from './context/ApiContext';
 import { UserProvider } from './context/UserContext';
+import ProfileScreen from './components/ProfileScreen';
 
  
 const Drawer = createDrawerNavigator();
@@ -22,6 +23,7 @@ export default function App() {
           <Drawer.Navigator>  
           <Drawer.Screen name="login" component={ConnexionScreen} options={{ drawerLabel: "Connexion" }}/>
           <Drawer.Screen name="RegisterScreen" component={RegisterScreen} options={{ drawerLabel: "Création de compte" }}/>
+          <Drawer.Screen name="ProfileScreen" component={ProfileScreen} options={{ drawerLabel: "Profil" }}/>
           <Drawer.Screen name="AddTransfer" component={AddTransfer} options={{ drawerLabel: "Effectuer un virement" }}/>
           <Drawer.Screen name="CommandCheck" component={CommandCheck} options={{ drawerLabel: "Commander un chéquier" }}/>
           <Drawer.Screen name="TestRoute" component={TestRoute} options={{ drawerLabel: "Tester les routes de l'API" }}/>
