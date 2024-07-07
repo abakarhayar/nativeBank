@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Picker, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Picker,
+  Alert,
+} from "react-native";
 import { useApi } from "../context/ApiContext";
 import { useUser } from "../context/UserContext";
 import Logo from "./Logo";
@@ -8,13 +16,11 @@ export default function AddTransfer({ route, navigation }) {
   const { successMessage } = route.params || {};
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [selectedSender, setSelectedSender] = useState(null);
   const [ibanInput, setIbanInput] = useState("");
   const [amount, setAmount] = useState("");
-  const [senderIban, setSenderIban] = useState("");
   const [alertMessage, setAlertMessage] = useState(successMessage || "");
   const apiUrl = useApi();
-  const { user } = useUser();
+  const { user, setUser } = useUser();
 
   useEffect(() => {
     fetchUsers();
@@ -65,21 +71,6 @@ export default function AddTransfer({ route, navigation }) {
     }
   };
 
-  const handleSenderSelection = (itemValue) => {
-    const selected = users.find((user) => user.iban === itemValue);
-    if (selected) {
-      setSelectedSender(selected);
-      setSenderIban(itemValue);
-    } else {
-      setSelectedSender(null);
-      setSenderIban("");
-    }
-  };
-
-  const handleSenderIbanChange = (text) => {
-    setSenderIban(text);
-  };
-
   const handleSubmit = async () => {
     if (!selectedUser || !amount) {
       Alert.alert("Erreur", "Veuillez remplir tous les champs");
@@ -103,8 +94,11 @@ export default function AddTransfer({ route, navigation }) {
       });
       if (response.ok) {
         const data = await response.json();
-        setAlertMessage(`Virement de ${amount} euros effectué avec succès à ${selectedUser.nom} ${selectedUser.prenom}`);
-        Alert.alert("Succès", "Virement effectué avec succès");
+        const updatedUser = { ...user, solde: user.solde - parseFloat(amount) };
+        setUser(updatedUser);
+        const message = `Virement de ${amount} euros effectué avec succès à ${selectedUser.nom} ${selectedUser.prenom}`;
+        setAmount("");
+        navigation.navigate("ProfileScreen", { successMessage: message });
       } else {
         const errorData = await response.json();
         Alert.alert("Échec", errorData.error);
@@ -132,7 +126,11 @@ export default function AddTransfer({ route, navigation }) {
       >
         <Picker.Item label="-- Sélectionner un destinataire --" value="" />
         {users.map((user) => (
-          <Picker.Item key={user.iban} label={`${user.nom} ${user.prenom}`} value={user.iban} />
+          <Picker.Item
+            key={user.iban}
+            label={`${user.nom} ${user.prenom}`}
+            value={user.iban}
+          />
         ))}
       </Picker>
 
@@ -145,7 +143,11 @@ export default function AddTransfer({ route, navigation }) {
         placeholderTextColor="#133CB3"
       />
 
-      <Button title="Effectuer le virement" onPress={handleSubmit} color="#FE09C4" />
+      <Button
+        title="Effectuer le virement"
+        onPress={handleSubmit}
+        color="#FE09C4"
+      />
     </View>
   );
 }
@@ -154,7 +156,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#FFFFFF", 
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
   },
