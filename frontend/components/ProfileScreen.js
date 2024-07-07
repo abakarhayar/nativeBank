@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useUser } from "../context/UserContext";
 import Logo from "./Logo";
+import UserInfo from './UserInfo';
+
 
 export default function ProfileScreen({ route, navigation }) {
   const { user } = useUser();
@@ -36,13 +38,7 @@ export default function ProfileScreen({ route, navigation }) {
         </View>
       )}
       {user ? (
-        <View style={styles.dataContainer}>
-          <Text style={styles.dataText}>Nom: {user.nom}</Text>
-          <Text style={styles.dataText}>Prénom: {user.prenom}</Text>
-          <Text style={styles.dataText}>Email: {user.email}</Text>
-          <Text style={styles.dataText}>IBAN: {user.iban}</Text>
-          <Text style={styles.dataText}>Solde: {user.solde}€</Text>
-        </View>
+        <UserInfo user={user} />
       ) : (
         <Text style={styles.loadingText}>Chargement des informations...</Text>
       )}
@@ -77,20 +73,6 @@ const styles = StyleSheet.create({
     color: "#056177",
     textAlign: "center",
     textTransform: "uppercase",
-  },
-  dataContainer: {
-    marginTop: 20,
-    borderWidth: 1,
-    borderColor: "#056177",
-    padding: 10,
-    width: "100%",
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  dataText: {
-    color: "#056177",
-    fontSize: 16,
-    marginBottom: 10,
   },
   loadingText: {
     color: "#056177",
