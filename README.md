@@ -18,7 +18,7 @@ NativeBank est une application mobile développée en React Native, offrant des 
 - **Effectuer un virement** : Permet aux utilisateurs de commander un chéquier.
 - **Affichage des données** : Récupère et affiche les données de l'utilisateur depuis l'API.
 
->  [Consigne](https://github.com/abakarhayar/nativeBank/blob/main/consignes_projet/Consigne%20pour%20r%C3%A9aliser%20le%20front%20de%20l'application%20en%20React%20Native.pdf)
+>  [Consigne](https://github.com/abakarhayar/nativeBank/blob/main/rapport/Consigne%20pour%20r%C3%A9aliser%20le%20front%20de%20l'application%20en%20React%20Native.pdf)
 
 ## Installation
 
